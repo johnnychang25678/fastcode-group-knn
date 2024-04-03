@@ -7,6 +7,7 @@
 
 #include "Preprocessing.h"
 #include <cmath>
+#include <algorithm>
 
 using namespace std;
 
