@@ -5,6 +5,7 @@
 #include "Preprocessing.h"
 #include <new>
 #include <cstring>
+#include "rdtsc.h"
 
 using namespace std;
 
@@ -23,25 +24,12 @@ void runKnn(char *trainFile, char *testFile, int k) {
 	ApplyMeanNormalization(test, meanData);
 
 	KNNResults rawResults = knn.run(k, test);
-	cout << "Consolidating results";
 	SingleExecutionResults top1 = rawResults.top1Result();
 	SingleExecutionResults top2 = rawResults.topXResult(2);
 	SingleExecutionResults top3 = rawResults.topXResult(3);
 
-	printf("Success Rate: %lf, Rejection Rate: %lf\n", top1.successRate(), top1.rejectionRate());
-	printf("Top 2 Success Rate: %lf\n", top2.successRate());
-	printf("Top 3 Success Rate: %lf\n", top3.successRate());
-	printf("Confusion matrix:\n");
-
 	MatrixPointer confusionMatrix = rawResults.getConfusionMatrix();
 
-	for(size_t i = 0; i< confusionMatrix->rows; i++) {
-		for(size_t j = 0; j< confusionMatrix->cols; j++) {
-			if (j!=0) printf(",");
-			printf("%d", (int)confusionMatrix->pos(i,j));
-		}
-		printf("\n");
-	}
 }
 
 void findBestK(char *trainFile) {
@@ -82,8 +70,12 @@ int main(int argc, char **argv)
 		printUsageAndExit(argv);
 	}
 
+	tsc_counter t0, t1;
 	if (strcmp(argv[1], "run") == 0) {
+		RDTSC(t0);
 		runKnn(argv[2], argv[3], atoi(argv[4]));
+		RDTSC(t1);
+		cout << "time: " << COUNTER_DIFF(t1, t0, CYCLES) << endl;
 	}
 	else if (strcmp(argv[1], "findbest") == 0) {
 		findBestK(argv[2]);

@@ -30,7 +30,6 @@ DatasetPointer ReadDataset::read(std::string filename, int nLabels) {
 	for(size_t i = 0; i < nExamples; i++) {
 		for (size_t j = 0; j < nDim; j++)
 			myFile >> result->pos(i,j);
-
 		myFile>> result->label(i);
 	}
 
