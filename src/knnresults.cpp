@@ -4,8 +4,9 @@
 
 using namespace std;
 
-
-
+/*
+ * Returns exec results (success rate, rejection rate) for the top 1 result.
+ */
 SingleExecutionResults KNNResults::top1Result(){
 	int nSuccess = 0;
 	int nRejected = 0;
@@ -22,6 +23,10 @@ SingleExecutionResults KNNResults::top1Result(){
 	return SingleExecutionResults(results->rows, nSuccess, nRejected);
 }
 
+/*
+ * Returns exec results for the top n result. Only success rate is calculated.
+ * The method sorts the probabilities in descending order and checks if the correct label is in the top n.
+ */
 SingleExecutionResults KNNResults::topXResult(int n) {
 	int nSuccess = 0;
 	int nRejected = 0;
@@ -32,6 +37,7 @@ SingleExecutionResults KNNResults::topXResult(int n) {
 		for(size_t j = 0; j < results->cols; j++)
 			resultsForExample[j] = make_pair(results->pos(currentExample,j), j);
 
+		// sort the probabilities in descending order
 		sort(resultsForExample, resultsForExample + results->cols, greater<pair<double,int> >());
 
 		for(int j = 0; j < n; j++) {
@@ -43,15 +49,16 @@ SingleExecutionResults KNNResults::topXResult(int n) {
 	return SingleExecutionResults(results->rows, nSuccess, nRejected);
 }
 
+/*
+ * Returns a matrix with exactly one prediction for each example.
+ */
 MatrixPointer KNNResults::getPredictions() {
-
 	MatrixPointer predictions(new matrix_base(results->rows, 1));
-
 	for (size_t currentExample = 0; currentExample < results->rows; currentExample++) {
-
 		double maxProbability = 0;
 		int maxIndex = -1;
 		bool rejecting = false;
+		// find the class with the highest probability
 		for(size_t j = 0; j < results->cols; j++) {
 			double currentProbability = results->pos(currentExample, j);
 			if (currentProbability > maxProbability) {
@@ -64,7 +71,7 @@ MatrixPointer KNNResults::getPredictions() {
 			}
 		}
 
-		if (rejecting) maxIndex = -1;
+		if (rejecting) maxIndex = -1; // reject if there is a tie
 
 		predictions->pos(currentExample,0) = maxIndex;
 	}
