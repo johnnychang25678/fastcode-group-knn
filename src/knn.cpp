@@ -9,11 +9,11 @@ double GetSquaredDistance(DatasetPointer train, size_t trainExample, DatasetPoin
 	assert(train->cols == target->cols);
 	double sum = 0;
 	double difference;
+	#pragma omp parallel for reduction(+:sum) schedule(static, 1)
 	for(size_t col = 0; col < train->cols; col++) {
 		difference = train->pos(trainExample, col) - target->pos(targetExample, col);
 		sum += difference * difference;
-	}
-	return sum;
+	}	return sum;
 }
 
 KNNResults KNN::run(int k, DatasetPointer target) {
@@ -27,11 +27,13 @@ KNNResults KNN::run(int k, DatasetPointer target) {
 
 	for(size_t targetExample = 0; targetExample < target->rows; targetExample++) {
 
-#ifdef DEBUG_KNN
-		if (targetExample % 100 == 0)
+		#ifdef DEBUG_KNN
+			if (targetExample % 100 == 0)
 				DEBUGKNN("Target %lu of %lu\n", targetExample, target->rows);
-#endif
+		#endif
+
 		//Find distance to all examples in the training set
+		#pragma omp parallel for
 		for (size_t trainExample = 0; trainExample < data->rows; trainExample++) {
 				squaredDistances[trainExample].first = GetSquaredDistance(data, trainExample, target, targetExample);
 				squaredDistances[trainExample].second = trainExample;
@@ -43,17 +45,23 @@ KNNResults KNN::run(int k, DatasetPointer target) {
 		//count classes of nearest neighbors
 		size_t nClasses = target->numLabels;
 		int countClosestClasses[nClasses];
-		for(size_t i = 0; i< nClasses; i++)
-			 countClosestClasses[i] = 0;
 
+		//#pragma omp parallel for schedule(dynamic)
+		for(size_t i = 0; i< nClasses; i++)
+			countClosestClasses[i] = 0;
+
+		//#pragma omp parallel for
 		for (int i = 0; i < k; i++)
 		{
-
 			int currentClass = data->label(squaredDistances[i].second);
+
+			//#pragma omp atomic
 			countClosestClasses[currentClass]++;
-		}
+		}	
+		
 
 		//result: probability of class K for the example X
+		//#pragma omp parallel for
 		for(size_t i = 0; i < nClasses; i++)
 		{
 			results->pos(targetExample, i) = ((double)countClosestClasses[i]) / k;
@@ -61,8 +69,10 @@ KNNResults KNN::run(int k, DatasetPointer target) {
 	}
 
 	//copy expected labels:
+	//#pragma omp parallel for
 	for (size_t i = 0; i < target->rows; i++)
 		results->label(i) = target->label(i);
 
 	return KNNResults(results);
+
 }
