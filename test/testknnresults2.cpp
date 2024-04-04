@@ -25,27 +25,29 @@ int main(int argc, char **argv)
 
 	KNNResults target = knn.run(10, test);
 
-	tsc_counter start_time, end_time;
-
-	RDTSC(start_time);
+	tsc_counter t0, t1;
+	RDTSC(t0);
 	SingleExecutionResults top1 = target.top1Result();
-	RDTSC(end_time);
-	cout << "top1Result time: " << COUNTER_DIFF(end_time, start_time, CYCLES) << endl;
+	RDTSC(t1);
+	cout << "top1Result time: " << COUNTER_DIFF(t1, t0, CYCLES) << endl;
 
-	RDTSC(start_time);
+	tsc_counter t2, t3;
+	RDTSC(t2);
 	SingleExecutionResults top3 = target.topXResult(3);
-	RDTSC(end_time);
-	cout << "top3Result time: " << COUNTER_DIFF(end_time, start_time, CYCLES) << endl;
+	RDTSC(t3);
+	cout << "top3Result time: " << COUNTER_DIFF(t3, t2, CYCLES) << endl;
 
-	RDTSC(start_time);
+	tsc_counter t4, t5;
+	RDTSC(t4);
 	SingleExecutionResults top10 = target.topXResult(10);
-	RDTSC(end_time);
-	cout << "top10Result time: " << COUNTER_DIFF(end_time, start_time, CYCLES) << endl;
+	RDTSC(t5);
+	cout << "top10Result time: " << COUNTER_DIFF(t5, t4, CYCLES) << endl;
 
-	RDTSC(start_time);
+	tsc_counter t6, t7;
+	RDTSC(t6);
 	MatrixPointer confusionMatrix = target.getConfusionMatrix();
-	RDTSC(end_time);
-	cout << "getConfusionMatrix time: " << COUNTER_DIFF(end_time, start_time, CYCLES) << endl;
+	RDTSC(t7);
+	cout << "getConfusionMatrix time: " << COUNTER_DIFF(t7, t6, CYCLES) << endl;
 
 	return 0;
 }
