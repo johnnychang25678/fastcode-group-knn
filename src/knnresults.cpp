@@ -1,6 +1,7 @@
 #include "knn.h"
 #include <vector>
 #include <algorithm>
+#include <omp.h>
 
 using namespace std;
 
@@ -13,6 +14,7 @@ SingleExecutionResults KNNResults::top1Result(){
 
 	MatrixPointer pred = getPredictions();
 
+	#pragma omp parallel for reduction(+:nSuccess, nRejected)
 	for (size_t currentExample = 0; currentExample < results->rows; currentExample++) {
 		if ((int)pred->pos(currentExample,0) == -1)
 			nRejected++;
@@ -31,6 +33,7 @@ SingleExecutionResults KNNResults::topXResult(int n) {
 	int nSuccess = 0;
 	int nRejected = 0;
 
+	#pragma omp parallel for reduction(+:nSuccess)
 	for (size_t currentExample = 0; currentExample < results->rows; currentExample++) {
 		pair<double, int> resultsForExample[results->cols];
 
@@ -54,6 +57,8 @@ SingleExecutionResults KNNResults::topXResult(int n) {
  */
 MatrixPointer KNNResults::getPredictions() {
 	MatrixPointer predictions(new matrix_base(results->rows, 1));
+
+	#pragma omp parallel for
 	for (size_t currentExample = 0; currentExample < results->rows; currentExample++) {
 		double maxProbability = 0;
 		int maxIndex = -1;
@@ -83,6 +88,7 @@ MatrixPointer KNNResults::getConfusionMatrix() {
 	MatrixPointer confusion(new matrix_base(results->cols, results->cols));
 	confusion->clear();
 
+	#pragma omp parallel for
 	for (size_t currentExample = 0; currentExample < results->rows; currentExample++) {
 		int predicted = (int)pred->pos(currentExample,0);
 		int actual = results->label(currentExample);
