@@ -30,22 +30,22 @@ int main(int argc, char **argv)
 	RDTSC(start_time);
 	SingleExecutionResults top1 = target.top1Result();
 	RDTSC(end_time);
-	cout << "top1Result time: " << COUNTER_DIFF(start_time, end_time, CYCLES) << endl;
+	cout << "top1Result time: " << COUNTER_DIFF(end_time, start_time, CYCLES) << endl;
 
 	RDTSC(start_time);
 	SingleExecutionResults top3 = target.topXResult(3);
 	RDTSC(end_time);
-	cout << "top3Result time: " << COUNTER_DIFF(start_time, end_time, CYCLES) << endl;
+	cout << "top3Result time: " << COUNTER_DIFF(end_time, start_time, CYCLES) << endl;
 
 	RDTSC(start_time);
 	SingleExecutionResults top10 = target.topXResult(10);
 	RDTSC(end_time);
-	cout << "top10Result time: " << COUNTER_DIFF(start_time, end_time, CYCLES) << endl;
+	cout << "top10Result time: " << COUNTER_DIFF(end_time, start_time, CYCLES) << endl;
 
 	RDTSC(start_time);
 	MatrixPointer confusionMatrix = target.getConfusionMatrix();
 	RDTSC(end_time);
-	cout << "getConfusionMatrix time: " << COUNTER_DIFF(start_time, end_time, CYCLES) << endl;
+	cout << "getConfusionMatrix time: " << COUNTER_DIFF(end_time, start_time, CYCLES) << endl;
 
 	return 0;
 }
