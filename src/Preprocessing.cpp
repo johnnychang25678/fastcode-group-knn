@@ -8,6 +8,7 @@
 #include "Preprocessing.h"
 #include <cmath>
 #include <algorithm>
+#include <omp.h>
 
 using namespace std;
 
@@ -43,6 +44,7 @@ MatrixPointer MeanNormalize(DatasetPointer data)
 
 void ApplyMeanNormalization(DatasetPointer data, MatrixPointer meanData)
 {
+#pragma omp parallel for collapse(2)
 	for (size_t i = 0; i < data->rows; i++)
 	{
 		for (size_t j = 0; j < data->cols; j++)
@@ -72,7 +74,8 @@ MatrixPointer ZScore(DatasetPointer data)
 		}
 	}
 
-	// Calculate mean
+// Calculate mean
+#pragma omp parallel for
 	for (size_t j = 0; j < data->cols; j++)
 	{
 		results->pos(0, j) = results->pos(0, j) / data->rows;
@@ -87,12 +90,14 @@ MatrixPointer ZScore(DatasetPointer data)
 			data->pos(1, j) = data->pos(1, j) + data_minus_mean * data_minus_mean;
 		}
 	}
+#pragma omp parallel for
 	for (size_t j = 0; j < data->cols; j++)
 	{
 		results->pos(1, j) = sqrt(results->pos(1, j) / data->rows);
 	}
 
-	// Apply to data
+// Apply to data
+#pragma omp parallel for collapse(2)
 	for (size_t i = 0; i < data->rows; i++)
 	{
 		for (size_t j = 0; j < data->cols; j++)
