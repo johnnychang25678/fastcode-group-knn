@@ -16,8 +16,8 @@ int main(int argc, char **argv)
 		exit(1);
 	}
 
-	DatasetPointer train = ReadDataset::read(argv[1], 4);
-	DatasetPointer test = ReadDataset::read(argv[2], 4);
+	DatasetPointer train = ReadDataset::read(argv[1], 10);
+	DatasetPointer test = ReadDataset::read(argv[2], 10);
 
 	MatrixPointer meanData = MeanNormalize(train);
 	KNN knn(train);
