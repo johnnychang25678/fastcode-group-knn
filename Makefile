@@ -1,7 +1,5 @@
 CC=g++
-CC_FLAGS=-std=c++11 -Wall -g -O3  -DDEBUG_KNN
-
-
+CC_FLAGS=-std=c++11 -Wall -g -O3 -fopenmp
 
 # File names
 EXEC = bin/main
