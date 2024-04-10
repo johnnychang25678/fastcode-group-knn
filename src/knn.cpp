@@ -32,7 +32,6 @@ KNNResults KNN::run(int k, DatasetPointer target) {
 		#endif
 
 		//Find distance to all examples in the training set
-		//#pragma omp parallel for
 		for (size_t trainExample = 0; trainExample < data->rows; trainExample++) {
 				squaredDistances[trainExample].first = GetSquaredDistance(data, trainExample, target, targetExample);
 				squaredDistances[trainExample].second = trainExample;
@@ -45,22 +44,18 @@ KNNResults KNN::run(int k, DatasetPointer target) {
 		size_t nClasses = target->numLabels;
 		int countClosestClasses[nClasses];
 
-		//#pragma omp parallel for schedule(dynamic)
 		for(size_t i = 0; i< nClasses; i++)
 			countClosestClasses[i] = 0;
 
-		#pragma omp parallel for
 		for (int i = 0; i < k; i++)
 		{
 			int currentClass = data->label(squaredDistances[i].second);
 
-			//#pragma omp atomic
 			countClosestClasses[currentClass]++;
 		}	
 		
 
 		//result: probability of class K for the example X
-		#pragma omp parallel for
 		for(size_t i = 0; i < nClasses; i++)
 		{
 			results->pos(targetExample, i) = ((double)countClosestClasses[i]) / k;
@@ -68,7 +63,6 @@ KNNResults KNN::run(int k, DatasetPointer target) {
 	}
 
 	//copy expected labels:
-	//#pragma omp parallel for
 	for (size_t i = 0; i < target->rows; i++)
 		results->label(i) = target->label(i);
 
