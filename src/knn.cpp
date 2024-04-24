@@ -5,6 +5,7 @@
 #include <iostream>
 #include "debug.h"
 #include <omp.h>
+#include <queue>
 
 double GetSquaredDistance(DatasetPointer train, size_t trainExample, DatasetPointer target, size_t targetExample) {
 	assert(train->cols == target->cols);
@@ -18,8 +19,6 @@ double GetSquaredDistance(DatasetPointer train, size_t trainExample, DatasetPoin
 }
 
 KNNResults KNN::run(int k, DatasetPointer target) {
-
-
 	DatasetPointer results(new dataset_base(target->rows,target->numLabels, target->numLabels));
 	results->clear();
 
@@ -33,14 +32,13 @@ KNNResults KNN::run(int k, DatasetPointer target) {
 		if (targetExample % 100 == 0)
 				DEBUGKNN("Target %lu of %lu\n", targetExample, target->rows);
 #endif
+		std::priority_queue<std::pair<double, int>> pq;
 		//Find distance to all examples in the training set
 		for (size_t trainExample = 0; trainExample < data->rows; trainExample++) {
 				squaredDistances[trainExample].first = GetSquaredDistance(data, trainExample, target, targetExample);
 				squaredDistances[trainExample].second = trainExample;
+				pq.push(squaredDistances[trainExample]);
 		}
-
-		//sort by closest distance
-		sort(squaredDistances, squaredDistances + data->rows);
 		
 		//count classes of nearest neighbors
 		size_t nClasses = target->numLabels;
@@ -50,8 +48,8 @@ KNNResults KNN::run(int k, DatasetPointer target) {
 
 		for (int i = 0; i < k; i++)
 		{
-
-			int currentClass = data->label(squaredDistances[i].second);
+			auto topElement = pq.top(); pq.pop();
+			int currentClass = data->label(topElement.second);
 			countClosestClasses[currentClass]++;
 		}
 
