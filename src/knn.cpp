@@ -22,10 +22,7 @@ KNNResults KNN::run(int k, DatasetPointer target) {
 	DatasetPointer results(new dataset_base(target->rows,target->numLabels, target->numLabels));
 	results->clear();
 
-	//squaredDistances: first is the distance; second is the trainExample row
-	std::pair<double, int> squaredDistances[data->rows];
-
-	#pragma omp parallel for default(none) private(squaredDistances) shared(results, target, k)
+	#pragma omp parallel for default(none) shared(results, target, k)
 	for(size_t targetExample = 0; targetExample < target->rows; targetExample++) {
 
 #ifdef DEBUG_KNN
@@ -35,9 +32,11 @@ KNNResults KNN::run(int k, DatasetPointer target) {
 		std::priority_queue<std::pair<double, int>> pq;
 		//Find distance to all examples in the training set
 		for (size_t trainExample = 0; trainExample < data->rows; trainExample++) {
-				squaredDistances[trainExample].first = GetSquaredDistance(data, trainExample, target, targetExample);
-				squaredDistances[trainExample].second = trainExample;
-				pq.push(squaredDistances[trainExample]);
+				//squaredDistances: first is the distance; second is the trainExample row
+				std::pair<double, int> squaredDistances;
+				squaredDistances.first = GetSquaredDistance(data, trainExample, target, targetExample);
+				squaredDistances.second = trainExample;
+				pq.push(squaredDistances);
 		}
 		
 		//count classes of nearest neighbors
