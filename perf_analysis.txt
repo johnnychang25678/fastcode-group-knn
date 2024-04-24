@@ -1,0 +1,18 @@
+
+ Performance counter stats for './bin/main run data/train2 data/test2 3':
+
+          5,243.95 msec task-clock:u              #    0.997 CPUs utilized          
+                 0      context-switches:u        #    0.000 K/sec                  
+                 0      cpu-migrations:u          #    0.000 K/sec                  
+             1,163      page-faults:u             #    0.222 K/sec                  
+    14,251,005,415      cycles:u                  #    2.718 GHz                    
+    13,999,423,880      instructions:u            #    0.98  insn per cycle         
+     3,413,684,891      branches:u                #  650.976 M/sec                  
+       389,127,508      branch-misses:u           #   11.40% of all branches        
+
+       5.258484476 seconds time elapsed
+
+       5.240942000 seconds user
+       0.004987000 seconds sys
+
+

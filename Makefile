@@ -1,7 +1,5 @@
 CC=g++
-CC_FLAGS=-std=c++11 -Wall -g -O3  -DDEBUG_KNN
-
-
+CC_FLAGS=-std=c++11 -Wall -g -O3
 
 # File names
 EXEC = bin/main
@@ -29,6 +27,17 @@ $(TESTTARGETS): bin/% : test/%.cpp $(TESTOBJECTS)
 # To obtain object files
 $(OBJECTS): obj/%.o : src/%.cpp
 	$(CC) -c $(CC_FLAGS) $< -o $@
+
+# generate gprof report
+gprof: $(OBJECTS)
+	$(CC) $(CC_FLAGS) -pg $(OBJECTS) -o $(EXEC)
+	./bin/main run data/train2 data/test2 3
+	gprof ./bin/main gmon.out > gprof_analysis.txt
+
+# generate perf report
+perf: $(OBJECTS)
+	$(CC) $(OBJECTS) -o $(EXEC)
+	perf stat ./bin/main run data/train2 data/test2 3 > perf_analysis.txt 2>&1
 
 # To remove generated files
 clean:
