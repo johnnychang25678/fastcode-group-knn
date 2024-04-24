@@ -3,10 +3,10 @@ Flat profile:
 Each sample counts as 0.01 seconds.
   %   cumulative   self              self     total           
  time   seconds   seconds    calls  Ts/call  Ts/call  name    
- 69.69      3.26     3.26                             void std::__introsort_loop<std::pair<double, int>*, long>(std::pair<double, int>*, std::pair<double, int>*, long)
- 29.50      4.64     1.38                             KNN::run(int, std::shared_ptr<dataset_base>)
-  0.64      4.67     0.03                             void std::__heap_select<std::pair<double, int>*>(std::pair<double, int>*, std::pair<double, int>*, std::pair<double, int>*)
-  0.21      4.68     0.01                             KNNResults::getPredictions()
+ 90.81     52.07    52.07                             GetSquaredDistance(std::shared_ptr<dataset_base>, unsigned long, std::shared_ptr<dataset_base>, unsigned long)
+  9.16     57.32     5.25                             void std::__introsort_loop<std::pair<double, int>*, long>(std::pair<double, int>*, std::pair<double, int>*, long)
+  0.05     57.35     0.03                             void std::__heap_select<std::pair<double, int>*>(std::pair<double, int>*, std::pair<double, int>*, std::pair<double, int>*)
+  0.02     57.36     0.01                             void std::__insertion_sort<std::pair<double, int>*>(std::pair<double, int>*, std::pair<double, int>*)
 
  %         the percentage of the total running time of the
 time       program used by this function.
