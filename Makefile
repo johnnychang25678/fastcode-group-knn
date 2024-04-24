@@ -36,7 +36,7 @@ gprof: $(OBJECTS)
 
 # generate perf report
 perf: $(OBJECTS)
-	$(CC) $(OBJECTS) -o $(EXEC)
+	$(CC) $(CC_FLAGS) $(OBJECTS) -o $(EXEC)
 	perf stat ./bin/main run data/train2 data/test2 3 > perf_analysis.txt 2>&1
 
 # To remove generated files
