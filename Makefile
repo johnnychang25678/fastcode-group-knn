@@ -1,5 +1,5 @@
 CC=g++
-CC_FLAGS=-std=c++11 -Wall -g -O3 -fopenmp
+CC_FLAGS=-std=c++11 -Wall -O3 -fopenmp
 
 # File names
 EXEC = bin/main
@@ -18,7 +18,7 @@ test: $(TESTTARGETS)
 
 # Main target
 $(EXEC): $(OBJECTS)
-	$(CC) $(OBJECTS) -o $(EXEC)
+	$(CC) $(CC_FLAGS) $(OBJECTS) -o $(EXEC)
 
 $(TESTTARGETS): bin/% : test/%.cpp $(TESTOBJECTS)
 	$(CC) $(CC_FLAGS) -o $@ $< $(TESTOBJECTS) -Isrc/
@@ -28,6 +28,12 @@ $(TESTTARGETS): bin/% : test/%.cpp $(TESTOBJECTS)
 $(OBJECTS): obj/%.o : src/%.cpp
 	$(CC) -c $(CC_FLAGS) $< -o $@
 
+# generate gprof report
+gprof: $(OBJECTS)
+	$(CC) $(CC_FLAGS) -pg $(OBJECTS) -o $(EXEC)
+	./bin/main run data/train2 data/test2 3
+	gprof ./bin/main gmon.out > analysis.txt
+
 # To remove generated files
 clean:
-	rm -f $(EXEC) $(OBJECTS) $(TESTTARGETS)
+	rm -f $(EXEC) $(OBJECTS) $(TESTTARGETS) *.out *.txt
