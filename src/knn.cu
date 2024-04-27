@@ -4,6 +4,7 @@
 #include "dataset.h"
 #include <iostream>
 #include "debug.h"
+#include <queue>
 
 __device__ double squaredDistance(const double* train, const double* target, int cols) {
     double sum = 0.0;
@@ -62,13 +63,11 @@ KNNResults KNN::run(int k, DatasetPointer target) {
 	results->clear();
 
 	for(size_t rowNum = 0; rowNum < target->rows; rowNum++) {
-		std::pair<double, int> squaredDistances[trainRows];
+		std::priority_queue<std::pair<double, int>> pq;
 		int startIdx = rowNum * trainRows;
 		for(int i = 0; i < trainRows; ++i) {
-			squaredDistances[i] = {distances[startIdx + i], i};
+			pq.push({distances[startIdx + i], i});
 		}
-
-		sort(squaredDistances, squaredDistances + trainRows);
 
 		//count classes of nearest neighbors
 		size_t nClasses = target->numLabels;
@@ -78,7 +77,8 @@ KNNResults KNN::run(int k, DatasetPointer target) {
 
 		for (int i = 0; i < k; i++)
 		{
-			int currentClass = data->label(squaredDistances[i].second);
+			auto topElement = pq.top(); pq.pop();
+			int currentClass = data->label(topElement.second);
 			countClosestClasses[currentClass]++;
 		}
 
