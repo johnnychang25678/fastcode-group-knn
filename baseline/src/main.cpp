@@ -12,9 +12,13 @@ using namespace std;
 const int nLabels = 10;
 
 void runKnn(char *trainFile, char *testFile, int k) {
+	#ifdef DEBUG_KNN
 	cout << "Reading train" <<endl;
+	#endif
 	DatasetPointer train = ReadDataset::read(trainFile, nLabels);
+	#ifdef DEBUG_KNN
 	cout << "Reading test" <<endl;
+	#endif
 	DatasetPointer test = ReadDataset::read(testFile, nLabels);
 
 	MatrixPointer meanData = MeanNormalize(train);
@@ -24,12 +28,31 @@ void runKnn(char *trainFile, char *testFile, int k) {
 	ApplyMeanNormalization(test, meanData);
 
 	KNNResults rawResults = knn.run(k, test);
+	#ifdef DEBUG_KNN
+	cout << "Consolidating results";
+	#endif
 	SingleExecutionResults top1 = rawResults.top1Result();
 	SingleExecutionResults top2 = rawResults.topXResult(2);
 	SingleExecutionResults top3 = rawResults.topXResult(3);
 
+	#ifdef DEBUG_KNN
+	printf("Success Rate: %lf, Rejection Rate: %lf\n", top1.successRate(), top1.rejectionRate());
+	printf("Top 2 Success Rate: %lf\n", top2.successRate());
+	printf("Top 3 Success Rate: %lf\n", top3.successRate());
+	printf("Confusion matrix:\n");
+	#endif
+
 	MatrixPointer confusionMatrix = rawResults.getConfusionMatrix();
 
+	#ifdef DEBUG_KNN
+	for(size_t i = 0; i< confusionMatrix->rows; i++) {
+		for(size_t j = 0; j< confusionMatrix->cols; j++) {
+			if (j!=0) printf(",");
+			printf("%d", (int)confusionMatrix->pos(i,j));
+		}
+		printf("\n");
+	}
+	#endif
 }
 
 void findBestK(char *trainFile) {
