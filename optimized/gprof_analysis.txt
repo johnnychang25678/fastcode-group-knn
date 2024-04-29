@@ -3,9 +3,14 @@ Flat profile:
 Each sample counts as 0.01 seconds.
   %   cumulative   self              self     total           
  time   seconds   seconds    calls  Ts/call  Ts/call  name    
+<<<<<<< HEAD:gprof_analysis.txt
  52.16      3.05     3.05                             void std::__introsort_loop<std::pair<double, int>*, long>(std::pair<double, int>*, std::pair<double, int>*, long)
  47.54      5.83     2.78                             KNN::run(int, std::shared_ptr<dataset_base>)
   0.34      5.85     0.02                             void std::__heap_select<std::pair<double, int>*>(std::pair<double, int>*, std::pair<double, int>*, std::pair<double, int>*)
+=======
+ 90.49      1.99     1.99                             KNN::run(int, std::shared_ptr<dataset_base>)
+  9.55      2.20     0.21                             void std::vector<std::pair<double, int>, std::allocator<std::pair<double, int> > >::_M_emplace_back_aux<std::pair<double, int> const&>(std::pair<double, int> const&)
+>>>>>>> algo:optimized/gprof_analysis.txt
 
  %         the percentage of the total running time of the
 time       program used by this function.
