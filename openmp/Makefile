@@ -31,13 +31,13 @@ $(OBJECTS): obj/%.o : src/%.cpp
 # generate gprof report
 gprof: $(OBJECTS)
 	$(CC) $(CC_FLAGS) -pg $(OBJECTS) -o $(EXEC)
-	./bin/main run data/train2 data/test2 3
+	./bin/main run ../data/train2 ../data/test2 3
 	gprof ./bin/main gmon.out > gprof_analysis.txt
 
 # generate perf report
 perf: $(OBJECTS)
 	$(CC) $(CC_FLAGS) $(OBJECTS) -o $(EXEC)
-	perf stat ./bin/main run data/train2 data/test2 3 > perf_analysis.txt 2>&1
+	perf stat ./bin/main run ../data/train2 ../data/test2 3 > perf_analysis.txt 2>&1
 
 # To remove generated files
 clean:
