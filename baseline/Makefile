@@ -1,9 +1,5 @@
 CC=g++
-<<<<<<< HEAD:Makefile
-CC_FLAGS=-std=c++11 -Wall -O3 -fopenmp
-=======
 CC_FLAGS=-std=c++11 -Wall -g -O3
->>>>>>> baseline:baseline/Makefile
 
 # File names
 EXEC = bin/main
