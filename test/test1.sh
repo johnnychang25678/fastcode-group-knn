@@ -2,30 +2,62 @@
 
 # test baseline
 cd baseline
-make clean && make && baseline_result=$(./bin/main run ../data/train2 ../data/test2 3)
+make clean && make
+baseline_result1=$(./bin/main run ../data/train1 ../data/test1 3)
+baseline_result2=$(./bin/main run ../data/train2 ../data/test2 3)
+baseline_result3=$(./bin/main run ../data/train3 ../data/test3 3)
 cd ..
 
 # test optimized
 cd optimized
-make clean && make && optimized_result=$(./bin/main run ../data/train2 ../data/test2 3)
+make clean && make
+optimized_result1=$(./bin/main run ../data/train1 ../data/test1 3)
+optimized_result2=$(./bin/main run ../data/train2 ../data/test2 3)
+optimized_result3=$(./bin/main run ../data/train3 ../data/test3 3)
 cd ..
 
 # test openmp
 cd openmp
-make clean && make && openmp_result=$(./bin/main run ../data/train2 ../data/test2 3)
+make clean && make 
+openmp_result1=$(./bin/main run ../data/train1 ../data/test1 3)
+openmp_result2=$(./bin/main run ../data/train2 ../data/test2 3)
+openmp_result3=$(./bin/main run ../data/train3 ../data/test3 3)
 cd ..
 
 # test cuda
 cd cuda
-make clean && make && cuda_result=$(./bin/main run ../data/train2 ../data/test2 3)
+make clean && make 
+cuda_result1=$(./bin/main run ../data/train1 ../data/test1 3)
+cuda_result2=$(./bin/main run ../data/train2 ../data/test2 3)
+cuda_result3=$(./bin/main run ../data/train3 ../data/test3 3)
 cd ..
 
+echo ""
+echo "===================="
+echo ""
 # output results
-echo "Baseline result:"
-echo $baseline_result
-echo "Optimized result:"
-echo $optimized_result
-echo "OpenMP result:"
-echo $openmp_result
-echo "CUDA result:"
-echo $cuda_result
+echo "Baseline result 1 ~ 3:"
+echo $baseline_result1
+echo $baseline_result2
+echo $baseline_result3
+echo ""
+echo "===================="
+echo ""
+echo "Optimized result 1 ~ 3:"
+echo $optimized_result1
+echo $optimized_result2
+echo $optimized_result3
+echo ""
+echo "===================="
+echo ""
+echo "OpenMP result 1 ~ 3:"
+echo $openmp_result1
+echo $openmp_result2
+echo $openmp_result3
+echo ""
+echo "===================="
+echo ""
+echo "CUDA result 1 ~ 3:"
+echo $cuda_result1
+echo $cuda_result2
+echo $cuda_result3
