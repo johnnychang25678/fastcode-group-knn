@@ -4,11 +4,6 @@
 #include "dataset.h"
 #include <iostream>
 #include "debug.h"
-#include <omp.h>
-<<<<<<<< HEAD:baseline/src/knn.cpp
-========
-#include <queue>
->>>>>>>> algo:optimized/src/knn.cpp
 
 double GetSquaredDistance(DatasetPointer train, size_t trainExample, DatasetPointer target, size_t targetExample) {
 	assert(train->cols == target->cols);
@@ -17,59 +12,46 @@ double GetSquaredDistance(DatasetPointer train, size_t trainExample, DatasetPoin
 	for(size_t col = 0; col < train->cols; col++) {
 		difference = train->pos(trainExample, col) - target->pos(targetExample, col);
 		sum += difference * difference;
-	}	return sum;
+	}
+	return sum;
 }
 
 KNNResults KNN::run(int k, DatasetPointer target) {
+
+
 	DatasetPointer results(new dataset_base(target->rows,target->numLabels, target->numLabels));
 	results->clear();
 
-<<<<<<<< HEAD:baseline/src/knn.cpp
 	//squaredDistances: first is the distance; second is the trainExample row
 	std::pair<double, int> squaredDistances[data->rows];
-========
-	#pragma omp parallel for default(none) shared(results, target, k)
->>>>>>>> algo:optimized/src/knn.cpp
+
 	for(size_t targetExample = 0; targetExample < target->rows; targetExample++) {
 
-		#ifdef DEBUG_KNN
-			if (targetExample % 100 == 0)
+#ifdef DEBUG_KNN
+		if (targetExample % 100 == 0)
 				DEBUGKNN("Target %lu of %lu\n", targetExample, target->rows);
-<<<<<<<< HEAD:baseline/src/knn.cpp
-		#endif
-
-========
 #endif
-		std::priority_queue<std::pair<double, int>> pq;
->>>>>>>> algo:optimized/src/knn.cpp
 		//Find distance to all examples in the training set
 		for (size_t trainExample = 0; trainExample < data->rows; trainExample++) {
-				//squaredDistances: first is the distance; second is the trainExample row
-				std::pair<double, int> squaredDistances;
-				squaredDistances.first = GetSquaredDistance(data, trainExample, target, targetExample);
-				squaredDistances.second = trainExample;
-				pq.push(squaredDistances);
+				squaredDistances[trainExample].first = GetSquaredDistance(data, trainExample, target, targetExample);
+				squaredDistances[trainExample].second = trainExample;
 		}
+
+		//sort by closest distance
+		sort(squaredDistances, squaredDistances + data->rows);
 		
 		//count classes of nearest neighbors
 		size_t nClasses = target->numLabels;
 		int countClosestClasses[nClasses];
-
 		for(size_t i = 0; i< nClasses; i++)
-			countClosestClasses[i] = 0;
+			 countClosestClasses[i] = 0;
 
 		for (int i = 0; i < k; i++)
 		{
-<<<<<<<< HEAD:baseline/src/knn.cpp
-			int currentClass = data->label(squaredDistances[i].second);
 
-========
-			auto topElement = pq.top(); pq.pop();
-			int currentClass = data->label(topElement.second);
->>>>>>>> algo:optimized/src/knn.cpp
+			int currentClass = data->label(squaredDistances[i].second);
 			countClosestClasses[currentClass]++;
-		}	
-		
+		}
 
 		//result: probability of class K for the example X
 		for(size_t i = 0; i < nClasses; i++)
