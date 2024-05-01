@@ -1,5 +1,5 @@
 CC=g++
-CC_FLAGS=-std=c++11 -Wall -g -O3
+CC_FLAGS=-std=c++11 -Wall -g -O3 -fopenmp
 
 # File names
 EXEC = bin/main
@@ -41,4 +41,4 @@ perf: $(OBJECTS)
 
 # To remove generated files
 clean:
-	rm -f $(EXEC) $(OBJECTS) $(TESTTARGETS) *.out *.txt
+	rm -f $(EXEC) $(OBJECTS) $(TESTTARGETS)

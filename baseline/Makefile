@@ -1,5 +1,5 @@
 CC=g++
-CC_FLAGS=-std=c++11 -Wall -g -O3
+CC_FLAGS=-std=c++11 -Wall -g -O3 -fopenmp
 
 # File names
 EXEC = bin/main
@@ -18,7 +18,7 @@ test: $(TESTTARGETS)
 
 # Main target
 $(EXEC): $(OBJECTS)
-	$(CC) $(OBJECTS) -o $(EXEC)
+	$(CC) $(CC_FLAGS) $(OBJECTS) -o $(EXEC)
 
 $(TESTTARGETS): bin/% : test/%.cpp $(TESTOBJECTS)
 	$(CC) $(CC_FLAGS) -o $@ $< $(TESTOBJECTS) -Isrc/

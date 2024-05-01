@@ -4,7 +4,7 @@
 #include "dataset.h"
 #include "Preprocessing.h"
 #include <cstring>
-#include "rdtsc.h"
+#include <omp.h>
 
 using namespace std;
 
@@ -20,12 +20,12 @@ void runKnn(char *trainFile, char *testFile, int k) {
 
 	ApplyMeanNormalization(test, meanData);
 
-	tsc_counter t0, t1;
-	RDTSC(t0);
+	double t0, t1;
+	t0 = omp_get_wtime();
 	KNNResults rawResults = knn.run(k, test);
-	RDTSC(t1);
+	t1 = omp_get_wtime();
 	
-	double t_diff = COUNTER_DIFF(t1, t0, CYCLES);
+	double t_diff = t1 - t0;
 	printf("Time: %lf\n", t_diff);
 }
 

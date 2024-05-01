@@ -41,4 +41,4 @@ perf: $(OBJECTS)
 
 # To remove generated files
 clean:
-	rm -f $(EXEC) $(OBJECTS) $(TESTTARGETS) *.out *.txt
+	rm -f $(EXEC) $(OBJECTS) $(TESTTARGETS)
