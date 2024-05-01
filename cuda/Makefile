@@ -21,8 +21,8 @@ all: $(EXEC)
 test: $(TESTTARGETS)
 
 # Main target
-$(EXEC): $(OBJECTS)
-	$(CC) $(CC_FLAGS) $(OBJECTS) -o $(EXEC)
+$(EXEC): $(OBJECTS) $(CUDA_OBJECTS)
+	$(NVCC) $(NVCC_FLAGS) $(OBJECTS) $(CUDA_OBJECTS) -o $(EXEC)
 
 $(TESTTARGETS): bin/% : test/%.cpp $(TESTOBJECTS)
 	$(CC) $(CC_FLAGS) -o $@ $< $(TESTOBJECTS) -Isrc/
@@ -36,7 +36,7 @@ $(CUDA_OBJECTS): obj/%.o : src/%.cu
 	$(NVCC) $(NVCC_FLAGS) -c $< -o $@
 
 # generate gprof report
-gprof: $(OBJECTS)
+gprof: $(OBJECTS) $(CUDA_OBJECTS)
 	$(NVCC) $(NVCC_FLAGS) -pg $(OBJECTS) $(CUDA_OBJECTS) -o $(EXEC)
 	./bin/main run ../data/train2 ../data/test2 3
 	gprof ./bin/main gmon.out > gprof_analysis.txt
