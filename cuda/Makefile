@@ -46,6 +46,11 @@ perf: $(OBJECTS) $(CUDA_OBJECTS)
 	$(NVCC) $(NVCC_FLAGS) $(OBJECTS) $(CUDA_OBJECTS) -o $(EXEC)
 	perf stat ./bin/main run ../data/train2 ../data/test2 3 > perf_analysis.txt 2>&1
 
+# generate nvprof report
+nvprof: $(OBJECTS) $(CUDA_OBJECTS)
+	$(NVCC) $(NVCC_FLAGS) $(OBJECTS) $(CUDA_OBJECTS) -o $(EXEC)
+	nvprof ./bin/main run ../data/train2 ../data/test2 3 > nvprof_analysis.txt 2>&1
+
 # To remove generated files
 clean:
 	rm -f $(EXEC) $(OBJECTS) $(CUDA_OBJECTS) $(TESTTARGETS)
