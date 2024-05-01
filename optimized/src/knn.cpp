@@ -4,7 +4,6 @@
 #include "dataset.h"
 #include <iostream>
 #include "debug.h"
-#include <omp.h>
 #include <queue>
 
 double GetSquaredDistance(DatasetPointer train, size_t trainExample, DatasetPointer target, size_t targetExample) {
@@ -22,7 +21,6 @@ KNNResults KNN::run(int k, DatasetPointer target) {
 	DatasetPointer results(new dataset_base(target->rows,target->numLabels, target->numLabels));
 	results->clear();
 
-	#pragma omp parallel for default(none) shared(results, target, k)
 	for(size_t targetExample = 0; targetExample < target->rows; targetExample++) {
 
 #ifdef DEBUG_KNN
