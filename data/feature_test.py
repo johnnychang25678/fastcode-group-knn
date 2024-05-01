@@ -1,24 +1,14 @@
-import threading
-from generate_data import generate_data
+from generate_data import generate_test_suite
 
 def main():
-    threads = []
-
-    # Create threads
-    threads.append(threading.Thread(target=generate_data, args=("feature_train1", 8192, 3)))
-    threads.append(threading.Thread(target=generate_data, args=("feature_test1", 2048, 3)))
-    threads.append(threading.Thread(target=generate_data, args=("feature_train2", 8192, 10)))
-    threads.append(threading.Thread(target=generate_data, args=("feature_test2", 2048, 10)))
-    threads.append(threading.Thread(target=generate_data, args=("feature_train3", 8192, 100)))
-    threads.append(threading.Thread(target=generate_data, args=("feature_test3", 2048, 100)))
-
-    # Start threads
-    for thread in threads:
-        thread.start()
-
-    # Wait for all threads to complete
-    for thread in threads:
-        thread.join()
+    generate_test_suite([
+        ("feature_train1", 16384, 3),
+        ("feature_test1", 4096, 3),
+        ("feature_train2", 16384, 10),
+        ("feature_test2", 4096, 10),
+        ("feature_train3", 16384, 100),
+        ("feature_test3", 4096, 100)
+    ])
 
 if __name__ == "__main__":
     main()
