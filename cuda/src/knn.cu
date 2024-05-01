@@ -4,71 +4,70 @@
 #include "dataset.h"
 #include <iostream>
 #include "debug.h"
+#include <omp.h>
 #include <queue>
 
-__device__ double squaredDistance(const double* train, const double* target, int cols) {
-    double sum = 0.0;
-    for (int i = 0; i < cols; i++) {
-        double diff = train[i] - target[i];
-        sum += diff * diff;
-    }
-    return sum;
+__global__ void GetSquaredDistance(
+	double* train, 
+	double* test, 
+	int numFeatures, 
+	int numDatas, 
+	int testId, 
+	double* result
+) {
+	int idx = blockIdx.x * blockDim.x + threadIdx.x;
+
+	if(idx >= numFeatures) return;
+
+	double sum = 0;
+	double difference;
+	for(int i = 0; i < numFeatures; i++) {
+		difference = train[idx * numFeatures + i] - test[testId * numFeatures + i];
+		sum += difference * difference;
+	}
+	result[testId * numDatas + idx] = sum;
 }
-
-__global__ void computeDistancesKernel(const double* train, const double* target, double* distances, int trainRows, int targetRows, int cols) {
-    int tid = blockDim.x * blockIdx.x + threadIdx.x;
-    if (tid >= trainRows * targetRows) return;
-
-    int trainIdx = tid / targetRows;
-    int targetIdx = tid % targetRows;
-
-    const double* trainPtr = &train[trainIdx * cols];
-    const double* targetPtr = &target[targetIdx * cols];
-    distances[tid] = squaredDistance(trainPtr, targetPtr, cols);
-}
-
 
 KNNResults KNN::run(int k, DatasetPointer target) {
-	double* trainDevice;
-    double* targetDevice;
-    double* distancesDevice;
-
-	int trainRows = data->rows;
-	int targetRows = target->rows;
-    int cols = target->cols;
-
-	size_t trainSize = trainRows * cols * sizeof(double);
-	size_t targetSize = targetRows * cols * sizeof(double);
-	size_t distancesSize = targetRows * trainRows * sizeof(double);
-
-	cudaMalloc(&trainDevice, trainSize);
-	cudaMalloc(&targetDevice, targetSize);
-	cudaMalloc(&distancesDevice, distancesSize);
-
-	cudaMemcpy(trainDevice, data->data, trainSize, cudaMemcpyHostToDevice);
-	cudaMemcpy(targetDevice, target->data, targetSize, cudaMemcpyHostToDevice);
-	
-	int blockSize = 256;
-    int numBlocks = (trainRows * targetRows + blockSize - 1) / blockSize;
-    computeDistancesKernel<<<numBlocks, blockSize>>>(trainDevice, targetDevice, distancesDevice, trainRows, targetRows, cols);
-
-    double* distances = new double[trainRows * targetRows];
-    cudaMemcpy(distances, distancesDevice, distancesSize, cudaMemcpyDeviceToHost);
-
-    cudaFree(trainDevice);
-    cudaFree(targetDevice);
-    cudaFree(distancesDevice);
-
 	DatasetPointer results(new dataset_base(target->rows,target->numLabels, target->numLabels));
 	results->clear();
 
-	for(size_t rowNum = 0; rowNum < target->rows; rowNum++) {
-		std::priority_queue<std::pair<double, int>> pq;
-		int startIdx = rowNum * trainRows;
-		for(int i = 0; i < trainRows; ++i) {
-			pq.push({distances[startIdx + i], i});
-		}
+	double* trainHost = data->data;
+	double* trainDevice;
+	cudaMalloc(&trainDevice, data->rows * data->cols * sizeof(double));
+	cudaMemcpy(trainDevice, trainHost, data->rows * data->cols * sizeof(double), cudaMemcpyHostToDevice);
 
+	double* targetHost = target->data;
+	double* targetDevice;
+	cudaMalloc(&targetDevice, target->rows * target->cols * sizeof(double));
+	cudaMemcpy(targetDevice, targetHost, target->rows * target->cols * sizeof(double), cudaMemcpyHostToDevice);
+
+	double* squaredDistancesDevice;
+	cudaMalloc(&squaredDistancesDevice, target->rows * data->rows * sizeof(double));
+
+	#pragma omp parallel shared(results, target, k)
+	{
+		int num_threads = omp_get_num_threads();
+    	int thread_id = omp_get_thread_num();
+	for(size_t targetExample = 0 + thread_id; targetExample < target->rows; targetExample += num_threads) {
+		GetSquaredDistance<<<(data->rows + 255) / 256, 256>>>(
+			trainDevice, 
+			targetDevice, 
+			data->cols, // numFeatures
+			data->rows, // numDatas
+			targetExample, // testId
+			squaredDistancesDevice
+		);
+
+		double* squaredDistancesHost = new double[data->rows];
+		cudaMemcpy(squaredDistancesHost , squaredDistancesDevice + targetExample * data->rows, data->rows * sizeof(double), cudaMemcpyDeviceToHost);
+		
+		//squaredDistances: first is the distance; second is the trainExample row
+		std::priority_queue<std::pair<double, int>> pq;
+		for(int i = 0; i < data->rows; i++) {
+			pq.push(std::make_pair(squaredDistancesHost[i], i));
+		}
+		
 		//count classes of nearest neighbors
 		size_t nClasses = target->numLabels;
 		int countClosestClasses[nClasses];
@@ -85,8 +84,9 @@ KNNResults KNN::run(int k, DatasetPointer target) {
 		//result: probability of class K for the example X
 		for(size_t i = 0; i < nClasses; i++)
 		{
-			results->pos(rowNum, i) = ((double)countClosestClasses[i]) / k;
+			results->pos(targetExample, i) = ((double)countClosestClasses[i]) / k;
 		}
+	}
 	}
 
 	//copy expected labels:
