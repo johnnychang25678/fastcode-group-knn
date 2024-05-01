@@ -1,6 +1,6 @@
 import random
 import argparse
-
+import threading
 
 def generate_data(file_path, row, dim):
     with open(file_path, 'w') as file:
@@ -13,6 +13,15 @@ def generate_data(file_path, row, dim):
             # Generating a random integer for data's label
             data += str(random.randint(0, 1)) + "\n"
             file.write(data)
+
+def generate_test_suite(args):
+    threads = []
+    for arg in args:
+        threads.append(threading.Thread(target=generate_data, args=arg))
+    for thread in threads:
+        thread.start()
+    for thread in threads:
+        thread.join()
 
 if __name__ == "__main__":
     # Setting up argument parsing
