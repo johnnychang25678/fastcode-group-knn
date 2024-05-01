@@ -7,13 +7,11 @@
 #include <omp.h>
 #include <queue>
 
-double GetSquaredDistance(DatasetPointer train, size_t trainExample, DatasetPointer target, size_t targetExample, int thread_id) {
-	assert(train->cols == target->cols);
+double GetSquaredDistance(double* train, double* test, int numFeatures) {
 	double sum = 0;
 	double difference;
-	for(size_t i = 0; i < train->cols; i++) {
-		int col = (thread_id + i) % train->cols;
-		difference = train->pos(trainExample, col) - target->pos(targetExample, col);
+	for(int i = 0; i < numFeatures; i++) {
+		difference = train[i] - test[i];
 		sum += difference * difference;
 	}
 	return sum;
@@ -28,17 +26,16 @@ KNNResults KNN::run(int k, DatasetPointer target) {
 		int num_threads = omp_get_num_threads();
     	int thread_id = omp_get_thread_num();
 	for(size_t targetExample = 0 + thread_id; targetExample < target->rows; targetExample += num_threads) {
-
-#ifdef DEBUG_KNN
-		if (targetExample % 100 == 0)
-				DEBUGKNN("Target %lu of %lu\n", targetExample, target->rows);
-#endif
+		double* targetData = &target->data[targetExample * target->cols];
+		double* trainData;
+		
+		//squaredDistances: first is the distance; second is the trainExample row
+		std::pair<double, int> squaredDistances;
 		std::priority_queue<std::pair<double, int>> pq;
 		//Find distance to all examples in the training set
 		for (size_t trainExample = 0; trainExample < data->rows; trainExample++) {
-				//squaredDistances: first is the distance; second is the trainExample row
-				std::pair<double, int> squaredDistances;
-				squaredDistances.first = GetSquaredDistance(data, trainExample, target, targetExample, thread_id);
+				trainData = &data->data[trainExample * data->cols];
+				squaredDistances.first = GetSquaredDistance(trainData, targetData, target->cols);
 				squaredDistances.second = trainExample;
 				pq.push(squaredDistances);
 		}
