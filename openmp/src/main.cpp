@@ -3,9 +3,7 @@
 #include "ReadDataset.h"
 #include "dataset.h"
 #include "Preprocessing.h"
-#include <new>
 #include <cstring>
-#include "rdtsc.h"
 
 using namespace std;
 
@@ -93,19 +91,11 @@ int main(int argc, char **argv)
 		printUsageAndExit(argv);
 	}
 
-	tsc_counter t0, t1;
-	tsc_counter t2, t3;
 	if (strcmp(argv[1], "run") == 0) {
-		RDTSC(t0);
 		runKnn(argv[2], argv[3], atoi(argv[4]));
-		RDTSC(t1);
-		cout << "runKnn time: " << COUNTER_DIFF(t1, t0, CYCLES) << endl;
 	}
 	else if (strcmp(argv[1], "findbest") == 0) {
-		RDTSC(t2);
 		findBestK(argv[2]);
-		RDTSC(t3);
-		cout << "findBestK time: " << COUNTER_DIFF(t3, t2, CYCLES) << endl;
 	}
 	else
 		printUsageAndExit(argv);
