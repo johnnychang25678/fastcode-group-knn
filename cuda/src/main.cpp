@@ -26,7 +26,13 @@ void runKnn(char *trainFile, char *testFile, int k) {
 	t1 = omp_get_wtime();
 	
 	double t_diff = t1 - t0;
-	printf("Time: %lf\n", t_diff);
+	// printf("Time: %lf\n", t_diff);
+
+	auto result = rawResults.getRawResults();
+	for(size_t i = 0; i < result->rows; ++i) {
+		cout << result->label(i);
+	}
+	cout << endl;
 }
 
 void findBestK(char *trainFile) {

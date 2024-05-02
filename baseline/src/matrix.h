@@ -16,9 +16,8 @@ typedef std::shared_ptr<matrix_base> MatrixPointer;
 
 
 class matrix_base {
-private:
-	double *data;
 public:
+	double *data;
 	size_t rows;
 	size_t cols;
 
